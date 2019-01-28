@@ -12,7 +12,7 @@ import okhttp3.Response;
 
 public class App
 {
-    static OkHttpClient client = new OkHttpClient();
+    static OkHttpClient client = new OkHttpClient.Builder().build();
 
     static ExecutorService service = Executors.newCachedThreadPool();
 
