@@ -11,4 +11,10 @@ clean:
 	mvn clean
 
 run: $(specialagent_jar)
-	java -Dls.accessToken=${ls_accesstoken} -cp target/java-specialagent-sampleapp-1.0-SNAPSHOT.jar -javaagent:$(specialagent_jar) io.opentracing.contrib.App
+	java \
+		-Dls.accessToken=${ls_accesstoken} \
+		-Dls.componentName=MyInstrumentedApp \
+		-cp target/java-specialagent-sampleapp-1.0-SNAPSHOT.jar -javaagent:$(specialagent_jar) io.opentracing.contrib.App
+
+run-no-agent:
+	java -cp target/java-specialagent-sampleapp-1.0-SNAPSHOT.jar io.opentracing.contrib.App
