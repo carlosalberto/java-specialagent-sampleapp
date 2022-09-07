@@ -1,9 +1,11 @@
 .PHONY: build clean run
 
-ls_accesstoken := yourtokenhere
+SPECIALAGENT_JAR := opentracing-special-agent-1.7.4.jar
 
-specialagent_jar := ../java-specialagent/opentracing-specialagent/target/opentracing-specialagent-0.0.1-SNAPSHOT.jar
-lighstep_tracer_jar := ../java-specialagent/tracers/lightstep/target/java-specialagent-lightstep-0.0.1-SNAPSHOT.jar
+LS_ACCESSTOKEN := yourtokenhere
+LS_AGENT_JAR := ../otel-launcher-java/agent/target/lightstep-opentelemetry-javaagent.jar
+
+JMX_PORT := 999
 
 build:
 	mvn package
@@ -11,11 +13,20 @@ build:
 clean:
 	mvn clean
 
-run: $(specialagent_jar)
-	java \
-		-Dls.accessToken=${ls_accesstoken} \
-		-Dls.componentName=MyInstrumentedApp \
-		-cp target/java-specialagent-sampleapp-1.0-SNAPSHOT.jar:$(lighstep_tracer_jar) -javaagent:$(specialagent_jar) io.opentracing.contrib.App
-
-run-no-agent:
+run:
 	java -cp target/java-specialagent-sampleapp-1.0-SNAPSHOT.jar io.opentracing.contrib.App
+
+run-specialagent: $(LS_AGENT_JAR)
+	java \
+		-Dls.accessToken=${LS_ACCESSTOKEN} \
+		-Dls.componentName=JavaSampleApp \
+		-Dls.maxBufferedSpans=1000 \
+		-Dls.maxReportingIntervalMillis=3000 \
+		-cp target/java-specialagent-sampleapp-1.0-SNAPSHOT.jar -javaagent:$(LS_AGENT_JAR) io.opentracing.contrib.App
+
+run-jmx:
+	java \
+		-Dcom.sun.management.jmxremote.port=${JMX_PORT} \
+		-Dcom.sun.management.jmxremote.authenticate=false \
+		-Dcom.sun.management.jmxremote.ssl=false \
+		-cp target/java-specialagent-sampleapp-1.0-SNAPSHOT.jar io.opentracing.contrib.App
